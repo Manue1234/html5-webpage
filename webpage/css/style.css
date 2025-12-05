@@ -1,0 +1,320 @@
+:root {
+    --primary-color: #bd0e88;
+}
+
+body {
+  margin-right: 0px;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+}
+
+/* --- Sidebar Wrapper (Desktop Default) --- */
+.right-side-bar-wrapper {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 250px; /* Fixed width on desktop is safer than % */
+  z-index: 1500;
+  
+  /* Animation Setup */
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(0); /* Default: Visible */
+}
+
+/* Hidden State (Desktop): Slide to the Right */
+.right-side-bar-wrapper.hidden {
+  transform: translateX(100%);
+}
+
+/* --- Sidebar Content --- */
+.right-side-bar-content {
+  background-color: white;
+  height: 100%;
+  width: 100%;
+  padding: 15px;
+  overflow-y: auto;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Mobile Styling (Screens smaller than 600px) --- */
+@media (max-width: 600px) {
+  .right-side-bar-wrapper {
+    top: auto;        /* Unset top */
+    bottom: 0;        /* Stick to bottom */
+    left: 0;
+    right: 0;         /* Full width */
+    width: 100vw;
+    height: auto;     /* Height depends on content */
+    max-height: 50vh; /* Don't cover more than half the screen */
+    
+    /* Animation Setup for Mobile */
+    transform: translateY(0); /* Default: Visible */
+  }
+
+  /* Hidden State (Mobile): Slide Down */
+  .right-side-bar-wrapper.hidden {
+    transform: translateY(100%); 
+  }
+
+  /* Adjust shadow for mobile */
+  .right-side-bar-content {
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1); /* Shadow on top */
+    border-top: 1px solid #ccc;
+  }
+  
+  /* Make buttons smaller or side-by-side on mobile */
+  .right-side-bar-content ul {
+     margin-bottom: 0;
+  }
+}
+
+/* --- SVG Container --- */
+#svg-container {
+  position: fixed;    /* Pins the SVG to the screen */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;         /* Ensures it stays behind your buttons/sidebar */
+  touch-action: none; /* Prevents mobile scrolling while dragging */
+}
+
+/* --- Hamburger Button --- */
+.hamburger-btn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.hamburger-btn.hidden {
+  transform: translateX(100%);
+}
+
+/* --- Close Button in Sidebar --- */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 30px;
+  background: none;
+  border: none;
+  color: black;
+  cursor: pointer;
+  float: right;
+}
+
+/* --- Class Box Styling --- */
+.drag-handle {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: grab;
+    user-select: none;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+    background-color: var(--primary-color);
+}
+
+.class-content {
+    padding: 10px;
+    flex-grow: 1;
+}
+
+.connection-line { stroke: #333; stroke-width: 2; }
+.connection-text { font-size: 12px; fill: #333; font-weight: bold; text-anchor: middle; pointer-events: none; background: white; }
+
+.selected-for-link .drag-handle {
+    background-color: #ff9800; /* Orange to indicate selection */
+    border: 2px solid #e65100;
+}
+
+.note-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: white; /* Ensures line is hidden behind box */
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+}
+
+.class-content textarea {
+    font-family: monospace;
+    font-size: 12px;
+}
+
+/* Cursor for the whole container when in connection mode */
+.cursor-crosshair {
+    cursor: crosshair !important;
+}
+
+/* Style for the button when active */
+.btn-active-mode {
+    background-color: #6c757d !important;
+    color: white !important;
+    border-color: #6c757d !important;
+}
+
+/* Ensure drag handles show connection cursor if mode is active */
+.cursor-crosshair .drag-handle {
+    cursor: crosshair !important;
+}
+
+/* Update .note-container to look more like a class */
+.note-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: white;
+    border: 1px solid #333;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    overflow: hidden; /* Keeps content inside rounded corners if used */
+}
+
+/* The Header (Class Name) */
+.class-header {
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1px solid #333;
+    padding: 5px;
+    background-color: var(--primary-color); /* Match your drag handle color */
+    color: white;
+    cursor: grab;
+}
+
+.class-header:active {
+    cursor: grabbing;
+}
+
+/* The Body */
+.class-content {
+    display: flex;
+    flex-direction: column;
+    padding: 0; /* Remove padding to let list fit */
+    flex-grow: 1;
+    overflow-y: auto; /* Allow scrolling if too many attributes */
+    background: white;
+}
+
+/* Attribute List */
+.attribute-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+/* Individual Attribute Item */
+.attribute-item {
+    padding: 2px 8px;
+    font-size: 12px;
+    font-family: monospace;
+    border-bottom: 1px solid #eee;
+    cursor: text;
+}
+
+.attribute-item:hover {
+    background-color: #f0f0f0;
+}
+
+/* The "Add" Button at bottom */
+.add-attr-btn {
+    margin-top: auto;
+    border: none;
+    border-top: 1px dashed #ccc;
+    background: #f9f9f9;
+    font-size: 10px;
+    color: #555;
+    width: 100%;
+    padding: 4px;
+    cursor: pointer;
+}
+
+.add-attr-btn:hover {
+    background: #e0e0e0;
+}
+
+/* Input field used during editing */
+.edit-input {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    cursor: text !important;
+    width: 100%;
+    font-size: 12px;
+    font-family: monospace;
+    padding: 2px;
+    box-sizing: border-box;
+    border: 1px solid #007bff;
+    outline: none;
+}
+
+/* Specific style for editing the Class Name */
+.edit-input.header-edit {
+    background-color: var(--primary-color); /* Matches the drag-handle color */
+    color: white;              /* White text to be visible */
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Subtle border */
+    outline: none;
+    height: 100%;              /* Fill the header height */
+}
+
+/* Ensure the input doesn't get clipped or shifted */
+.drag-handle {
+    min-height: 30px; /* Ensure there is space for the input */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ensure the header flex container handles the input correctly */
+.class-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+}
+/* Selected Class (Blue Border) */
+.selected-class .note-container {
+    border: 2px solid #007bff !important; /* Blue border */
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+/* Selected Attribute (Blue Background) */
+.selected-attribute {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+/* Selected Association (Red Line) */
+.selected-connection line {
+    stroke: #d32f2f !important; 
+    stroke-width: 3px !important;
+}
+.selected-connection text {
+    fill: #d32f2f !important;
+    font-weight: bold;
+}
+
+/* Custom Button Style */
+.btn-outline-custom {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background-color: transparent;
+}
+
+.btn-outline-custom:hover {
+    background-color: var(--primary-color);
+    color: white;
+}

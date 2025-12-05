@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-d-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/main.js" type="module"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <title>Model Editor</title>
+  </head>
+  <body>
+    <aside id="model-element-wrapper" class="right-side-bar-wrapper">
+     <div id="model-drag-drop" class="right-side-bar-content">
+      <h5>Class Editor</h5>
+       <button id="close-btn" class="close-btn">&times;</button>
+      <ul class="nav flex-column">
+        <li class>
+          <button id="class-spawner" class="btn btn-outline-custom w-100 mt-2"><p>Add Class</p></button>
+        </li>
+        <li>
+          <button id="association-spawner" class="btn btn-outline-custom w-100 mt-2"><p>Add Association</p></button>
+        </li>
+        <li>
+          <button id="delete-btn" class="btn btn-outline-danger w-100 mt-2">Delete Selected</button>
+        </li>
+        <li class="nav-item p-2">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="gyro-toggle">
+            <label class="form-check-label" for="gyro-toggle">Gravity Mode 🌍</label>
+          </div>
+        </li>
+      </ul>
+    </div>
+   </aside>
+   <button id="toggle-btn" class="hamburger-btn">&#9776;</button>
+  </body>
+</html>

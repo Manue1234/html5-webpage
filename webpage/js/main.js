@@ -40,7 +40,7 @@ $(document).ready(function() {
     const assocBtn = $('#association-spawner');
     const classSpawner = $('#class-spawner');
     const deleteBtn = $('#delete-btn');
-    const gyroToggle = $('#gyro-toggle'); // NEW: Gyro Switch
+    const gyroToggle = $('#gyro-toggle');
     
     let associations = [];
     let linkSelection = null; 
@@ -73,6 +73,7 @@ $(document).ready(function() {
     }
 
     toggleBtn.on('click', toggleMenu);
+    toggleBtn.toggle('hidden');
     closeBtn.on('click', toggleMenu);
 
     assocBtn.on('click', () => {
@@ -107,7 +108,7 @@ $(document).ready(function() {
         clearGlobalSelection();
     });
 
-    // --- 6. GYROSCOPE LOGIC (New) ---
+    // --- 6. GYROSCOPE LOGIC (Updated) ---
 
     gyroToggle.on('change', function() {
         if (this.checked) {
@@ -118,7 +119,6 @@ $(document).ready(function() {
     });
 
     function enableGyro() {
-        // iOS 13+ requires permission
         if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
             DeviceOrientationEvent.requestPermission()
                 .then(response => {
@@ -131,7 +131,6 @@ $(document).ready(function() {
                 })
                 .catch(console.error);
         } else {
-            // Non-iOS or older devices
             startPhysics();
         }
     }
@@ -139,7 +138,6 @@ $(document).ready(function() {
     function startPhysics() {
         gyroEnabled = true;
         window.addEventListener('deviceorientation', handleOrientation);
-        // Start the physics loop (60fps)
         physicsInterval = requestAnimationFrame(physicsLoop);
     }
 
@@ -147,35 +145,32 @@ $(document).ready(function() {
         gyroEnabled = false;
         window.removeEventListener('deviceorientation', handleOrientation);
         if (physicsInterval) cancelAnimationFrame(physicsInterval);
-        gravity = { x: 0, y: 0 }; // Reset gravity
+        gravity = { x: 0, y: 0 };
     }
 
     function handleOrientation(event) {
-        // Gamma: Left/Right tilt (-90 to 90)
-        // Beta: Front/Back tilt (-180 to 180)
         let x = event.gamma; 
         let y = event.beta;
-
-        // Deadzone (ignore small tilts)
         if (Math.abs(x) < 5) x = 0;
         if (Math.abs(y) < 5) y = 0;
-
-        // Limit speed
-        gravity.x = x * 0.15; // Speed factor
+        gravity.x = x * 0.15;
         gravity.y = y * 0.15;
     }
 
     function physicsLoop() {
         if (!gyroEnabled) return;
 
-        if (Math.abs(gravity.x) > 0.1 || Math.abs(gravity.y) > 0.1) {
-            const bounds = getBoundaries();
-            const allForeignObjects = document.querySelectorAll('foreignObject');
+        // --- UPDATED LOGIC: Only move if a CLASS is selected ---
+        if ((Math.abs(gravity.x) > 0.1 || Math.abs(gravity.y) > 0.1) && 
+            currentSelection && 
+            currentSelection.type === 'class') {
 
-            allForeignObjects.forEach(fo => {
-                // IMPORTANT: If user is currently dragging this specific box, skip gravity
-                if (selectedElement && selectedElement.id === fo.id && isDragging) return;
-
+            const fo = document.getElementById(currentSelection.id);
+            
+            // Safety check: Element exists AND we are not currently drag-dropping it with finger
+            if (fo && !(selectedElement && selectedElement.id === fo.id && isDragging)) {
+                
+                const bounds = getBoundaries();
                 let x = parseFloat(fo.getAttribute('x'));
                 let y = parseFloat(fo.getAttribute('y'));
                 const w = parseFloat(fo.getAttribute('width'));
@@ -196,7 +191,7 @@ $(document).ready(function() {
                 fo.setAttribute('x', x);
                 fo.setAttribute('y', y);
                 updateLinesForNote(fo.id);
-            });
+            }
         }
 
         physicsInterval = requestAnimationFrame(physicsLoop);
@@ -215,7 +210,6 @@ $(document).ready(function() {
         
         if (sidebarWrapper && !sidebarWrapper.classList.contains('hidden')) {
             const rect = sidebarWrapper.getBoundingClientRect();
-            
             // Desktop (Right Sidebar)
             if (rect.height > svgHeight / 2) {
                 if (rect.left > 0 && rect.left < svgWidth) {

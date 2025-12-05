@@ -40,6 +40,7 @@ $(document).ready(function() {
     const assocBtn = $('#association-spawner');
     const classSpawner = $('#class-spawner');
     const deleteBtn = $('#delete-btn');
+    const gyroToggle = $('#gyro-toggle'); // NEW: Gyro Switch
     
     let associations = [];
     let linkSelection = null; 
@@ -49,8 +50,12 @@ $(document).ready(function() {
     let connectionMode = false;
     let isDragging = false;
     let startMousePos = { x: 0, y: 0 };
-
     let currentSelection = null; 
+
+    // --- GYRO VARIABLES ---
+    let gyroEnabled = false;
+    let gravity = { x: 0, y: 0 };
+    let physicsInterval = null;
 
     // --- 5. UI Handlers ---
 
@@ -59,7 +64,6 @@ $(document).ready(function() {
         sidebar.toggle('hidden'); 
         $('#toggle-btn').toggle('hidden');
 
-        // Animate the push effect
         let steps = 0;
         const interval = setInterval(() => {
             repositionElements();
@@ -69,7 +73,6 @@ $(document).ready(function() {
     }
 
     toggleBtn.on('click', toggleMenu);
-    toggleBtn.toggle('hidden');
     closeBtn.on('click', toggleMenu);
 
     assocBtn.on('click', () => {
@@ -104,7 +107,102 @@ $(document).ready(function() {
         clearGlobalSelection();
     });
 
-    // --- 6. Boundaries & Reposition Logic (Updated for Mobile Wrapper) ---
+    // --- 6. GYROSCOPE LOGIC (New) ---
+
+    gyroToggle.on('change', function() {
+        if (this.checked) {
+            enableGyro();
+        } else {
+            disableGyro();
+        }
+    });
+
+    function enableGyro() {
+        // iOS 13+ requires permission
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission()
+                .then(response => {
+                    if (response === 'granted') {
+                        startPhysics();
+                    } else {
+                        alert("Permission denied. Gravity mode won't work.");
+                        gyroToggle.prop('checked', false);
+                    }
+                })
+                .catch(console.error);
+        } else {
+            // Non-iOS or older devices
+            startPhysics();
+        }
+    }
+
+    function startPhysics() {
+        gyroEnabled = true;
+        window.addEventListener('deviceorientation', handleOrientation);
+        // Start the physics loop (60fps)
+        physicsInterval = requestAnimationFrame(physicsLoop);
+    }
+
+    function disableGyro() {
+        gyroEnabled = false;
+        window.removeEventListener('deviceorientation', handleOrientation);
+        if (physicsInterval) cancelAnimationFrame(physicsInterval);
+        gravity = { x: 0, y: 0 }; // Reset gravity
+    }
+
+    function handleOrientation(event) {
+        // Gamma: Left/Right tilt (-90 to 90)
+        // Beta: Front/Back tilt (-180 to 180)
+        let x = event.gamma; 
+        let y = event.beta;
+
+        // Deadzone (ignore small tilts)
+        if (Math.abs(x) < 5) x = 0;
+        if (Math.abs(y) < 5) y = 0;
+
+        // Limit speed
+        gravity.x = x * 0.15; // Speed factor
+        gravity.y = y * 0.15;
+    }
+
+    function physicsLoop() {
+        if (!gyroEnabled) return;
+
+        if (Math.abs(gravity.x) > 0.1 || Math.abs(gravity.y) > 0.1) {
+            const bounds = getBoundaries();
+            const allForeignObjects = document.querySelectorAll('foreignObject');
+
+            allForeignObjects.forEach(fo => {
+                // IMPORTANT: If user is currently dragging this specific box, skip gravity
+                if (selectedElement && selectedElement.id === fo.id && isDragging) return;
+
+                let x = parseFloat(fo.getAttribute('x'));
+                let y = parseFloat(fo.getAttribute('y'));
+                const w = parseFloat(fo.getAttribute('width'));
+                const h = parseFloat(fo.getAttribute('height'));
+
+                // Apply Gravity
+                x += gravity.x;
+                y += gravity.y;
+
+                // Clamp X
+                if (x + w > bounds.right) x = bounds.right - w;
+                if (x < 0) x = 0;
+
+                // Clamp Y
+                if (y + h > bounds.bottom) y = bounds.bottom - h;
+                if (y < 0) y = 0;
+
+                fo.setAttribute('x', x);
+                fo.setAttribute('y', y);
+                updateLinesForNote(fo.id);
+            });
+        }
+
+        physicsInterval = requestAnimationFrame(physicsLoop);
+    }
+
+    // --- 7. Boundaries & Reposition Logic ---
 
     function getBoundaries() {
         const svgWidth = svgContainer.clientWidth;
@@ -115,20 +213,16 @@ $(document).ready(function() {
 
         const sidebarWrapper = document.getElementById('model-element-wrapper');
         
-        // Check if sidebar is visible
         if (sidebarWrapper && !sidebarWrapper.classList.contains('hidden')) {
             const rect = sidebarWrapper.getBoundingClientRect();
             
-            // LOGIC: Use the dimensions of the wrapper itself
-            
-            // Case 1: Desktop (Sidebar is tall and on the right)
-            // If height is > 50% of screen, it's likely the desktop sidebar
+            // Desktop (Right Sidebar)
             if (rect.height > svgHeight / 2) {
                 if (rect.left > 0 && rect.left < svgWidth) {
                     bRight = rect.left;
                 }
             } 
-            // Case 2: Mobile (Sidebar is wide and on the bottom)
+            // Mobile (Bottom Sidebar)
             else {
                 if (rect.top > 0 && rect.top < svgHeight) {
                     bBottom = rect.top;
@@ -148,11 +242,8 @@ $(document).ready(function() {
             const w = parseFloat(fo.getAttribute('width'));
             const h = parseFloat(fo.getAttribute('height'));
 
-            // Clamp X
             if (x + w > bounds.right) x = bounds.right - w;
             if (x < 0) x = 0;
-
-            // Clamp Y
             if (y + h > bounds.bottom) y = bounds.bottom - h;
             if (y < 0) y = 0;
 
@@ -164,7 +255,7 @@ $(document).ready(function() {
 
     window.addEventListener('resize', repositionElements);
 
-    // --- 7. Input Handlers ---
+    // --- 8. Input Handlers ---
 
     function getPointerPosition(evt) {
         const CTM = svgContainer.getScreenCTM();
@@ -271,7 +362,7 @@ $(document).ready(function() {
     svgContainer.addEventListener('touchend', handleEnd);
     svgContainer.addEventListener('touchcancel', handleEnd);
 
-    // --- Standard Helpers ---
+    // --- Helpers ---
     function clearGlobalSelection() {
         if (currentSelection) {
             if (currentSelection.type === 'class') document.getElementById(currentSelection.id)?.classList.remove('selected-class');

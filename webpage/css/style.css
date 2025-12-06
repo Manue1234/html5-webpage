@@ -1,3 +1,7 @@
+:root {
+    --primary-color: #bd0e88;
+}
+
 body {
   margin-right: 0px;
   padding: 0;
@@ -26,6 +30,7 @@ body {
   transform: translateX(100%);
 }
 
+/* --- Sidebar Content --- */
 .right-side-bar-content {
   background-color: white;
   height: 100%;
@@ -57,17 +62,19 @@ body {
     transform: translateY(100%); 
   }
 
+  /* Adjust shadow for mobile */
   .right-side-bar-content {
     box-shadow: 0 -2px 5px rgba(0,0,0,0.1); /* Shadow on top */
     border-top: 1px solid #ccc;
   }
   
-  /* Optional: Make buttons smaller or side-by-side on mobile */
+  /* Make buttons smaller or side-by-side on mobile */
   .right-side-bar-content ul {
      margin-bottom: 0;
   }
 }
 
+/* --- SVG Container --- */
 #svg-container {
   position: fixed;    /* Pins the SVG to the screen */
   top: 0;
@@ -78,6 +85,7 @@ body {
   touch-action: none; /* Prevents mobile scrolling while dragging */
 }
 
+/* --- Hamburger Button --- */
 .hamburger-btn {
   position: fixed;
   top: 10px;
@@ -92,6 +100,7 @@ body {
   transform: translateX(100%);
 }
 
+/* --- Close Button in Sidebar --- */
 .close-btn {
   position: absolute;
   top: 10px;
@@ -104,8 +113,9 @@ body {
   float: right;
 }
 
+/* --- Class Box Styling --- */
 .drag-handle {
-    background-color: #bd0e88;
+    background-color: var(--primary-color);
     color: white;
     padding: 5px 10px;
     font-size: 12px;
@@ -115,7 +125,7 @@ body {
 
 .drag-handle:active {
     cursor: grabbing;
-    background-color: #e01dc6;
+    background-color: var(--primary-color);
 }
 
 .class-content {
@@ -178,7 +188,7 @@ body {
     text-align: center;
     border-bottom: 1px solid #333;
     padding: 5px;
-    background-color: #bd0e88; /* Match your drag handle color */
+    background-color: var(--primary-color); /* Match your drag handle color */
     color: white;
     cursor: grab;
 }
@@ -205,6 +215,7 @@ body {
     width: 100%;
 }
 
+/* Individual Attribute Item */
 .attribute-item {
     padding: 2px 8px;
     font-size: 12px;
@@ -250,7 +261,7 @@ body {
 
 /* Specific style for editing the Class Name */
 .edit-input.header-edit {
-    background-color: #bd0e88; /* Matches the drag-handle color */
+    background-color: var(--primary-color); /* Matches the drag-handle color */
     color: white;              /* White text to be visible */
     font-weight: bold;
     text-align: center;
@@ -274,19 +285,19 @@ body {
     justify-content: center;
     min-height: 30px;
 }
-/* 1. Selected Class (Blue Border) */
+/* Selected Class (Blue Border) */
 .selected-class .note-container {
     border: 2px solid #007bff !important; /* Blue border */
     box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
 }
 
-/* 2. Selected Attribute (Blue Background) */
+/* Selected Attribute (Blue Background) */
 .selected-attribute {
     background-color: #cce5ff;
     color: #004085;
 }
 
-/* 3. Selected Association (Red Line - reused from previous, but ensured here) */
+/* Selected Association (Red Line) */
 .selected-connection line {
     stroke: #d32f2f !important; 
     stroke-width: 3px !important;
@@ -294,4 +305,16 @@ body {
 .selected-connection text {
     fill: #d32f2f !important;
     font-weight: bold;
+}
+
+/* Custom Button Style */
+.btn-outline-custom {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background-color: transparent;
+}
+
+.btn-outline-custom:hover {
+    background-color: var(--primary-color);
+    color: white;
 }

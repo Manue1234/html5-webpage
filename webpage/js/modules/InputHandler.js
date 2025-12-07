@@ -10,6 +10,12 @@ let startMousePos = { x: 0, y: 0 };
 let offset = { x: 0, y: 0 };
 export let selectedElement = null; // The DOM element currently being acted upon
 
+/**
+ * Initializes unified event listeners for mouse and touch events
+ * @param {HTMLElement} svgContainer - The SVG container element
+ * @param {HTMLElement} classLayer - The SVG group element containing all Class elements
+ * @param {HTMLElement} linesLayer - The SVG group element containing all Association lines
+ */
 export function initInputHandlers(svgContainer, classLayer, linesLayer) {
 
     // Attach Unified Listeners
@@ -35,6 +41,17 @@ export function initInputHandlers(svgContainer, classLayer, linesLayer) {
     });
 }
 
+/**
+ * Handles the start of a drag event (mousedown/touchstart)
+ * @param {Event} evt - The event object
+ * @param {HTMLElement} svgContainer - The SVG container element
+ * @param {HTMLElement} linesLayer - The SVG group element containing all Association lines
+ * @returns {void}
+ * @description
+ * This function starts the dragging process and handles the connection mode logic.
+ * If the user is currently in connection mode, it will create a connection between the two clicked elements.
+ * If not in connection mode, it will start the dragging process.
+ */
 export function handleStart(evt, svgContainer, linesLayer) {
     // 1. Ignore inputs (allow editing text)
     if (evt.target.tagName.toLowerCase() === 'input') return;
@@ -88,6 +105,18 @@ export function handleStart(evt, svgContainer, linesLayer) {
     }
 }
 
+/**
+ * Handles the user dragging a class box around the canvas.
+ * @param {Event} evt - The event that triggered the function.
+ * @param {SVGElement} svgContainer - The SVG container element.
+ * @param {SVGElement} classLayer - The SVG layer that contains the class boxes.
+ * 
+ * This function first checks if the user is dragging a class box.
+ * If so, it prevents mobile scrolling and checks if the user has moved the box by at least 5px.
+ * If they have, it brings the box to the front of the layer and updates the box's position.
+ * It then clamps the box's position to within the bounds of the canvas.
+ * Finally, it updates the lines that connect the class box to its attributes.
+ */
 export function handleMove(evt, svgContainer, classLayer) {
     if (selectedElement) {
         // Stop mobile scrolling
@@ -129,6 +158,12 @@ export function handleMove(evt, svgContainer, classLayer) {
     }
 }
 
+/**
+ * Handles the user releasing the mouse button after a drag or click.
+ * If the user didn't actually drag the box, it treats it as a Selection.
+ * Resets the input handler state variables.
+ * @param {Event} evt - The event that triggered the function.
+ */
 export function handleEnd(evt) {
     // If we clicked (MouseUp) but didn't actually drag, treat it as a Selection
     if (selectedElement && !isDragging) {
@@ -140,6 +175,16 @@ export function handleEnd(evt) {
     isDragging = false;
 }
 
+/**
+ * Handles a click event on an Association group element.
+ * If the group element is found, it will find the corresponding association object
+ * in the state and select it.
+ * @param {Event} evt - The event object that triggered the function
+ * @returns {void}
+ * @description
+ * This function finds the Association object in the state and selects it.
+ * It stops event propagation to prevent further actions.
+ */
 export function handleAssociationClick(evt) {
     const group = evt.target.closest('g.association-group');
     if (group) {

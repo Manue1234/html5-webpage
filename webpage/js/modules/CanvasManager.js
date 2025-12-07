@@ -3,6 +3,11 @@ export let svgContainer;
 export let linesLayer;
 export let classLayer;
 
+/**
+ * Initializes the SVG canvas and creates the necessary layers.
+ *
+ * @returns {Object} An object containing the svg container, lines layer, and class layer.
+ */
 export function initCanvas() {
     const svgContainer = document.createElementNS(svgNS, 'svg');
     svgContainer.id = 'svg-container';
@@ -36,6 +41,18 @@ export function initCanvas() {
     return { svgContainer, linesLayer, classLayer };
 }
 
+/**
+ * Retrieves the position of the pointer (mouse or touch) in the SVG canvas' coordinate system.
+ *
+ * @param {Event} evt - The event object containing information about the pointer position.
+ * @param {SVGElement} svgContainer - The SVG element containing the canvas.
+ *
+ * @returns {Object} An object containing the pointer position in both the SVG canvas' and the screen's coordinate systems.
+ * @property {number} x - The x-coordinate of the pointer position in the SVG canvas.
+ * @property {number} y - The y-coordinate of the pointer position in the SVG canvas.
+ * @property {number} rawX - The x-coordinate of the pointer position in the screen's coordinate system.
+ * @property {number} rawY - The y-coordinate of the pointer position in the screen's coordinate system.
+ */
 export function getPointerPosition(evt, svgContainer) {
     const CTM = svgContainer.getScreenCTM();
     if (!CTM) return { x: 0, y: 0 };
@@ -59,6 +76,16 @@ export function getPointerPosition(evt, svgContainer) {
     };
 }
 
+/**
+ * Retrieves the boundaries of the SVG canvas after taking into account any
+ * visible sidebars (desktop right sidebar or mobile bottom sidebar).
+ *
+ * @param {SVGElement} svgContainer - The SVG element containing the canvas.
+ *
+ * @returns {Object} An object containing the boundaries of the SVG canvas.
+ * @property {number} right - The right boundary of the SVG canvas in its coordinate system.
+ * @property {number} bottom - The bottom boundary of the SVG canvas in its coordinate system.
+ */
 export function getBoundaries(svgContainer) {
     const svgWidth = svgContainer.clientWidth;
     const svgHeight = svgContainer.clientHeight;

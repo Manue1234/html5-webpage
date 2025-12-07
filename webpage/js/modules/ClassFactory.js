@@ -1,6 +1,14 @@
 import { svgNS, classLayer, svgContainer } from './CanvasManager.js';
 import { getBoundaries } from './CanvasManager.js';
 
+/**
+ * Spawns a new class element in the SVG container.
+ * The class element is placed at a random position within the SVG container.
+ * The class element contains a header with the text "NewClass" and a list of attributes.
+ * The user can add new attributes to the class element by clicking the "+ Add Attribute" button.
+ * @param {SVGElement} svgContainer - The SVG element to spawn the class element in.
+ * @param {SVGElement} classLayer - The SVG element to append the class element to.
+ */
 export function spawnClass(svgContainer, classLayer) {
     const fo = document.createElementNS(svgNS, 'foreignObject');
     fo.setAttribute('id', 'class_' + Date.now());
